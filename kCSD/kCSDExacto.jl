@@ -1,13 +1,18 @@
+#=
+Obtains the CSD from a previous calculated kernel. Needs both LFP,
+and the product of both  kernels described in the paper from Potworowski.
+=# 
+
 using JLD
 
 numarg=length(ARGS)
 if numarg<1
-    error("Dame un nombre de archivo JLD que tenga LFP y KTT_KInv guardados")
+    error("Give me a JLD that has LFP and KTT_KInv inside")
 else
     nombre=ARGS[1] 
 end
 
-println("cargando lfp")
+println("loading lfp")
 lfp=load(nombre)["LFPSaturados"]
 KTT=load(nombre)["KTT_KInv"]
 saturados=load(nombre)["CanalesSaturados"]
@@ -27,7 +32,7 @@ CSD=zeros(lfp)
 
 lfpv=zeros(nbuenas,tmax)
 
-println("Acomodando los LFP correctos")
+println("Setting up the LFP of usuable electrodes")
 
 for j=1:nbuenas
     renglon=xpurgadas[j][1]
@@ -38,7 +43,7 @@ end
 
 CSDTentativa=zeros(lfpv)
 
-println("Empezando calculo")
+println("Convoluting...")
 for t=1:tmax
     CSDTentativa[:,t]=KTT*lfpv[:,t] 
 end
@@ -50,13 +55,13 @@ for j=1:nbuenas
 end
 
 
-println("terminando calculo")
+println("Finishing  operations")
 
 paguardar=load(nombre)
 paguardar["kCSDCorrecta"]=CSD
 save(nombre,paguardar)
 
-println("Tu archivo jld ha sido modificado, checa una entrada kCSD")
+println("Your file has been modified. Look for kCSD entry.")
 
 
 
